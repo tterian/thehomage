@@ -2,7 +2,7 @@ import { Cart, Collection, Product } from "lib/types";
 import { reshapeCart, reshapeProduct, reshapeProducts } from "./reshape";
 import { FourthwallCart, FourthwallCheckout, FourthwallCollection, FourthwallProduct } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_FW_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_FW_API_URL || 'https://api.fourthwall.com';
 const STOREFRONT_TOKEN = process.env.NEXT_PUBLIC_FW_STOREFRONT_TOKEN;
 
 /**
@@ -85,11 +85,13 @@ export async function getCollections(): Promise<Collection[]> {
 export async function getCollectionProducts({
   collection,
   currency,
+  limit,
 }: {
   collection: string;
   currency: string;
+  limit?: number;
 }): Promise<Product[]> {
-  const res = await fourthwallGet<{results: FourthwallProduct[]}>(`${API_URL}/api/public/v1.0/collections/${collection}/products?&currency=${currency}`, {
+  const res = await fourthwallGet<{results: FourthwallProduct[]}>(`${API_URL}/api/public/v1.0/collections/${collection}/products?&currency=${currency}${limit ? `&limit=${limit}` : ''}`, {
     headers: {
       'X-ShopId': process.env.FW_SHOPID || ''
     }
