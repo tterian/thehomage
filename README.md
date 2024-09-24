@@ -16,11 +16,9 @@ There are a few prerequisites to get started with Fourthwall's Storefront API.
 
 2. [Make some products](https://my-shop.fourthwall.com/admin/dashboard/products/all/) and [create a collection](https://my-shop.fourthwall.com/admin/dashboard/products/collections/).
 
-3. (optional) [Style your store](https://my-shop.fourthwall.com/admin/dashboard/store-design/layout/index/) for the [checkout flow](https://docs.fourthwall.com/storefront/checkout).
+3. After you have signed up, [get a storefront token](https://my-shop.fourthwall.com/admin/dashboard/settings/for-developers).
 
-4. After you have signed up, [get a storefront token](https://my-shop.fourthwall.com/admin/dashboard/settings/for-developers).
-
-5. Fill out the environment variables below in .env.local.
+4. Fill out the environment variables below in .env.local.
 
 ```bash
 NEXT_PUBLIC_FW_STOREFRONT_TOKEN="<your storefront token>" # Example: ptkn_...
@@ -64,3 +62,4 @@ vercel --prod # Deploys to production
 ## Resources
 
 * How to get your [collection handle](https://docs.fourthwall.com/storefront/collection).
+* [Style your store](https://my-shop.fourthwall.com/admin/dashboard/store-design/layout/index/) for the [checkout flow](https://docs.fourthwall.com/storefront/checkout).
