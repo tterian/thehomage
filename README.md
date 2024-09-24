@@ -6,6 +6,8 @@ A high-perfomance, server-rendered Next.js App Router ecommerce application.
 
 [⚡️ Live Demo](https://fw-commerce.vercel.app)
 
+[📚 API docs](https://docs.fourthwall.com/storefront)
+
 ## Getting started
 
 There are a few prerequisites to get started with Fourthwall's Storefront API.
@@ -22,12 +24,11 @@ There are a few prerequisites to get started with Fourthwall's Storefront API.
 
 ```bash
 NEXT_PUBLIC_FW_API_URL="https://api.fourthwall.com"
-
-NEXT_PUBLIC_FW_COLLECTION="<the handle of your collection>" # Example: launch. This is available at the details page for the collection. See below for more details.
 NEXT_PUBLIC_FW_STOREFRONT_TOKEN="<your storefront token>" # Example: ptkn_...
 NEXT_PUBLIC_FW_CHECKOUT="<your store url>" # Example: vercel-shop.fourthwall.com. Used for checkout
-
 NEXT_PUBLIC_VERCEL_URL="<the url of your vercel site>" # Example: fw-commerce.vercel.app. This is used for sitemap.xml + robots.txt.
+
+NEXT_PUBLIC_FW_COLLECTION="<the handle of your collection>" # (Optional) This is available at the details page for the collection. See Resources for more details.
 ```
 
 ## Develop locally
@@ -61,7 +62,5 @@ vercel --prod # Deploys to production
 ```
 
 ## Resources
-
-* Visit the API docs [here](https://docs.fourthwall.com/storefront).
 
 * How to get your [collection handle](https://docs.fourthwall.com/storefront/collection).
