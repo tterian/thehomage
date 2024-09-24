@@ -4,9 +4,9 @@
 
 A high-perfomance, server-rendered Next.js App Router ecommerce application.
 
-[⚡️ Live Demo](https://fw-commerce.vercel.app)
+⚡️ [Live Demo](https://fw-commerce.vercel.app)
 
-[📚 API docs](https://docs.fourthwall.com/storefront)
+📚 [API docs](https://docs.fourthwall.com/storefront)
 
 ## Getting started
 
