@@ -49,7 +49,13 @@ Your app should now be running on [localhost:3000](http://localhost:3000/).
 
 ## Deploying
 
+After cloning the repo with the Deploy with Vercel button above, you will need to set the environment variables.
+
 ```bash
+git clone _your repo_ # your repo that you set up with Deploy with Vercel
+
+vercel # From your repo directory. Links to your project
+
 vercel # Initializes the project
 vercel env add NEXT_PUBLIC_FW_COLLECTION
 vercel env add NEXT_PUBLIC_FW_STOREFRONT_TOKEN
