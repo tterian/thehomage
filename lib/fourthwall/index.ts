@@ -1,33 +1,52 @@
 import { Cart, Collection, Product } from "lib/types";
+import * as path from 'path';
 import { reshapeCart, reshapeProduct, reshapeProducts } from "./reshape";
-import { FourthwallCart, FourthwallCheckout, FourthwallCollection, FourthwallProduct } from "./types";
+import { FourthwallCart, FourthwallCollection, FourthwallProduct } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_FW_API_URL || 'https://api.fourthwall.com';
-const STOREFRONT_TOKEN = process.env.NEXT_PUBLIC_FW_STOREFRONT_TOKEN;
+const API_URL = process.env.NEXT_PUBLIC_FW_API_URL || 'https://storefront-api.fourthwall.com/v1';
+const STOREFRONT_TOKEN = process.env.NEXT_PUBLIC_FW_STOREFRONT_TOKEN || '';
 
 /**
  * Helpers
  */
-async function fourthwallGet<T>(url: string, options: RequestInit = {}): Promise<{ status: number; body: T }> {
+async function fourthwallGet<T>(url: string, query: Record<string, string | number | undefined>, options: RequestInit = {}): Promise<{ status: number; body: T }> {
+  const constructedUrl = new URL(url);
+  // add query parameters
+  Object.keys(query).forEach((key) => {
+    if (query[key] !== undefined) {
+      constructedUrl.searchParams.append(key, query[key].toString());
+    }
+  });
+  constructedUrl.searchParams.append('storefront_token', STOREFRONT_TOKEN);
+
   try {
     const result = await fetch(
-      url,
+      constructedUrl.toString(),
       {
         method: 'GET',
         ...options,
         headers: {
           'Content-Type': 'application/json',
-          'X-FW-Public-Token': STOREFRONT_TOKEN || '',
           ...options.headers
-        }
+        },
       }
     );
 
     const body = await result.json();
 
+    if (result.status !== 200) {
+      console.error({
+        status: result.status,
+        url: constructedUrl.toString(),
+        body,
+      });
+
+      throw new Error("Failed to fetch from Fourthwall");
+    }
+
     return {
       status: result.status,
-      body
+      body,
     };
   } catch (e) {
     throw {
@@ -39,18 +58,21 @@ async function fourthwallGet<T>(url: string, options: RequestInit = {}): Promise
 
 async function fourthwallPost<T>(url: string, data: any, options: RequestInit = {}): Promise<{ status: number; body: T }> {
   try {
-    const result = await fetch(url, {
+    const result = await fetch(`${url}?storefront_token=${STOREFRONT_TOKEN}`, {
       method: 'POST',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        'X-FW-Public-Token': STOREFRONT_TOKEN || '',
         ...options.headers
       },
       body: JSON.stringify(data)
     });
 
-    const body = await result.json();
+    console.warn('POST', url, data);
+
+    const bodyRaw = await result.text();
+    console.warn('POST', bodyRaw);
+    const body = JSON.parse(bodyRaw);
 
     return {
       status: result.status,
@@ -69,11 +91,7 @@ async function fourthwallPost<T>(url: string, data: any, options: RequestInit = 
  * Collection operations
  */
 export async function getCollections(): Promise<Collection[]> {
-  const res = await fourthwallGet<{ results: FourthwallCollection[] }>(`${API_URL}/api/public/v1.0/collections`, {
-    headers: {
-      'X-ShopId': process.env.FW_SHOPID || ''
-    }
-  });
+  const res = await fourthwallGet<{ results: FourthwallCollection[] }>(path.join(API_URL, 'collections'), {});
 
   return res.body.results.map((collection) => ({
     handle: collection.slug,
@@ -91,10 +109,9 @@ export async function getCollectionProducts({
   currency: string;
   limit?: number;
 }): Promise<Product[]> {
-  const res = await fourthwallGet<{results: FourthwallProduct[]}>(`${API_URL}/api/public/v1.0/collections/${collection}/products?&currency=${currency}${limit ? `&limit=${limit}` : ''}`, {
-    headers: {
-      'X-ShopId': process.env.FW_SHOPID || ''
-    }
+  const res = await fourthwallGet<{results: FourthwallProduct[]}>(path.join(API_URL, 'collections', collection, 'products'), {
+    currency,
+    limit
   });
 
   if (!res.body.results) {
@@ -110,7 +127,7 @@ export async function getCollectionProducts({
  * Product operations
  */
 export async function getProduct({ handle, currency } : { handle: string, currency: string }): Promise<Product | undefined> {
-  const res = await fourthwallGet<FourthwallProduct>(`${API_URL}/api/public/v1.0/products/${handle}?&currency=${currency}`);
+  const res = await fourthwallGet<FourthwallProduct>(path.join(API_URL, 'products', handle), { currency });
 
   return reshapeProduct(res.body);
 }
@@ -123,19 +140,31 @@ export async function getCart(cartId: string | undefined, currency: string): Pro
     return undefined;
   }
 
-  const res = await fourthwallGet<FourthwallCart>(`${API_URL}/api/public/v1.0/carts/${cartId}?currency=${currency}`, {
-    cache: 'no-store'
-  });
+  try {
+    const res = await fourthwallGet<FourthwallCart>(path.join(API_URL, 'carts', cartId), {
+      currency
+    }, {
+      cache: 'no-store'
+    });
 
-  return reshapeCart(res.body);
+    return reshapeCart(res.body);
+  } catch (e) {
+    console.error('CART ERROR', e);
+    return undefined;
+  }
 }
 
 export async function createCart(): Promise<Cart> {
-  const res = await fourthwallPost<FourthwallCart>(`${API_URL}/api/public/v1.0/carts`, {
-    items: []
-  });
+  try {
+    const res = await fourthwallPost<FourthwallCart>(path.join(API_URL, 'carts'), {
+      items: []
+    });
 
-  return reshapeCart(res.body);
+    return reshapeCart(res.body);
+  } catch (e) {
+    console.error('CART CREATE ERROR', e);
+    throw e;
+  }
 }
 
 export async function addToCart(
@@ -148,7 +177,7 @@ export async function addToCart(
     quantity: line.quantity
   }));
 
-  const res = await fourthwallPost<FourthwallCart>(`${API_URL}/api/public/v1.0/carts/${cartId}/add`, {
+  const res = await fourthwallPost<FourthwallCart>(path.join(API_URL, 'carts', cartId, 'add'), {
     items,
   }, {
     cache: 'no-store'    
@@ -162,7 +191,7 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
     variantId: id
   }));
 
-  const res = await fourthwallPost<FourthwallCart>(`${API_URL}/api/public/v1.0/carts/${cartId}/remove`, {
+  const res = await fourthwallPost<FourthwallCart>(path.join(API_URL, 'carts', cartId, 'remove'), {
     items,
   }, {
     cache: 'no-store'
@@ -180,23 +209,11 @@ export async function updateCart(
     quantity: line.quantity
   }));
 
-  const res = await fourthwallPost<FourthwallCart>(`${API_URL}/api/public/v1.0/carts/${cartId}/change`, {
+  const res = await fourthwallPost<FourthwallCart>(path.join(API_URL, 'carts', cartId, 'change'), {
     items,
   }, {
     cache: 'no-store'
   });
 
   return reshapeCart(res.body);
-}
-
-export async function createCheckout(
-  cartId: string,
-  cartCurrency: string
-): Promise<FourthwallCheckout> {
-  const res = await fourthwallPost<{ id: string }>(`${API_URL}/api/public/v1.0/checkouts`, {
-    cartId,
-    cartCurrency
-  });
-
-  return res.body;
 }
