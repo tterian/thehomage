@@ -3,12 +3,7 @@
 import { useState } from "react";
 
 const Currencies = [
-  'USD',
-  'EUR',
-  'GBP',
-  'CAD',
-  'AUD',
-  'JPY',
+  'AMD',
 ];
 
 export function CurrencySelector({ currency }: { currency: string; }) {

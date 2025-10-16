@@ -1,8 +1,14 @@
+import { Lobster_Two } from 'next/font/google';
+ 
+const lobsterTwo = Lobster_Two({
+  weight: '400',
+  subsets: ['latin'],
+})
+
 import CartModal from 'components/cart/modal';
 import LogoSquare from 'components/logo-square';
 import { getCollections } from 'lib/fourthwall';
 import Link from 'next/link';
-import { CurrencySelector } from './currency';
 
 export async function Navbar({currency}: {currency: string}) {
   const collections = await getCollections()
@@ -17,8 +23,8 @@ export async function Navbar({currency}: {currency: string}) {
             className="mr-2 flex w-full items-center justify-center md:w-auto lg:mr-6"
           >
             <LogoSquare />
-            <div className="ml-2 flex-none text-sm font-medium uppercase md:hidden lg:block">
-              Launch on Fourthwall!
+            <div className={`${lobsterTwo.className} ml-2 text-xl flex-none font-medium md:hidden lg:block`}>
+              The Homage
             </div>
           </Link>
           {collections.length ? (
@@ -40,7 +46,6 @@ export async function Navbar({currency}: {currency: string}) {
         <div className="hidden justify-center md:flex md:w-1/3">
         </div>
         <div className="flex justify-end md:w-1/3 gap-4">
-          <CurrencySelector currency={currency} />
           <CartModal />
         </div>
       </div>
