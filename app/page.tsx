@@ -6,7 +6,7 @@ import { Wrapper } from 'components/wrapper';
 import { getCart } from 'lib/fourthwall';
 
 export const metadata = {
-  description: 'High-performance ecommerce store built with Next.js, Vercel, and Fourthwall.',
+  description: 'Vintage watches for the modern man',
   openGraph: {
     type: 'website'
   }
