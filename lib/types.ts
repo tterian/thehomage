@@ -63,6 +63,9 @@ export type Product = {
     maxVariantPrice: Money;
     minVariantPrice: Money;
   };
+  state: {
+    [key: string]: string;
+  };
   featuredImage: Image;
   tags: string[];
   updatedAt: string;

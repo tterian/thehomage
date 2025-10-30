@@ -7,11 +7,9 @@ const lobsterTwo = Lobster_Two({
 
 import CartModal from 'components/cart/modal';
 import LogoSquare from 'components/logo-square';
-import { getCollections } from 'lib/fourthwall';
 import Link from 'next/link';
 
 export async function Navbar({currency}: {currency: string}) {
-  const collections = await getCollections()
 
   return (
     <nav className="relative flex items-center justify-between p-4 lg:px-6">
@@ -27,21 +25,17 @@ export async function Navbar({currency}: {currency: string}) {
               The Homage
             </div>
           </Link>
-          {collections.length ? (
-            <ul className="hidden gap-6 text-sm md:flex md:items-center">
-              {collections.map((item) => (
-                <li key={item.title}>
-                  <Link
-                    href={`/collections/${item.handle}`}
-                    prefetch={true}
-                    className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          <ul className="hidden gap-6 text-sm md:flex md:items-center">
+            <li>
+              <Link
+                href={`/collections/all`}
+                prefetch={true}
+                className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+              >
+                All products
+              </Link>
+            </li>
+          </ul>
         </div>
         <div className="hidden justify-center md:flex md:w-1/3">
         </div>

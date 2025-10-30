@@ -18,6 +18,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const product = await getProduct({ handle: params.handle, currency: 'USD' });
 
+  console.log(product);
+
   if (!product) return notFound();
 
   const { url, width, height, altText: alt } = product.featuredImage || {};
